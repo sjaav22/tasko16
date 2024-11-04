@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Sign In - TASKO</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Epilogue:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="/" class="logo">TASKO</a>
+            <a th:href="@{/register}" class="btn">Create Account</a>
+        </div>
+    </nav>
+
+    <main class="auth-container">
+        <div class="glass-card auth-card">
+            <h2 class="text-center">Welcome Back</h2>
+            <p class="text-center text-muted mb-4">Sign in to continue to your dashboard</p>
+
+            <div th:if="${param.error}" class="alert alert-error">
+                Invalid username or password.
+            </div>
+
+            <div th:if="${param.logout}" class="alert alert-success">
+                You have been logged out successfully.
+            </div>
+
+            <div th:if="${success}" class="alert alert-success" th:text="${success}">
+            </div>
+
+            <form th:action="@{/login}" method="post" class="auth-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" required autofocus>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-block mb-3">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Sign In
+                </button>
+            </form>
+
+            <p class="text-center text-muted">
+                Don't have an account? 
+                <a th:href="@{/register}" class="text-accent">Create one now</a>
+            </p>
+        </div>
+    </main>
+</body>
+</html>

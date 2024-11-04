@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Access Denied - Tasko</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+    <nav class="nav">
+        <div class="container nav-content">
+            <div class="logo">
+                <a th:href="@{/}" class="logo-link">Tasko</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="auth-container">
+        <div class="auth-card">
+            <h2>Access Denied</h2>
+            <p class="auth-subtitle">You don't have permission to access this page.</p>
+            <div class="auth-footer">
+                <a th:href="@{/dashboard}" class="btn btn-primary btn-block">Return to Dashboard</a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

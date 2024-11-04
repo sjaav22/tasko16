@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>TASKO - Task and Attendance Management</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Epilogue:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="/" class="logo">TASKO</a>
+            <div class="nav-links">
+                <a th:href="@{/login}" class="btn">Sign In</a>
+                <a th:href="@{/register}" class="btn">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="glass-card">
+                <h1>Streamline Your Workflow</h1>
+                <p>Manage tasks and attendance with our intuitive platform designed for modern teams.</p>
+                <div class="hero-buttons">
+                    <a th:href="@{/register}" class="btn">Start Free Trial</a>
+                    <a th:href="@{/login}" class="btn">Learn More</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="stats-grid">
+                <div class="glass-card">
+                    <i class="fas fa-tasks"></i>
+                    <h3>Task Management</h3>
+                    <p>Create, assign, and track tasks efficiently with our intuitive interface.</p>
+                </div>
+                <div class="glass-card">
+                    <i class="fas fa-clock"></i>
+                    <h3>Attendance Tracking</h3>
+                    <p>Monitor attendance and working hours with automated time tracking.</p>
+                </div>
+                <div class="glass-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Real-time Analytics</h3>
+                    <p>Get insights into team performance with detailed analytics and reports.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer glass-card">
+        <div class="text-center">
+            <p>&copy; 2024 Tasko. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

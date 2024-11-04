@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Register - TASKO</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Epilogue:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="/" class="logo">TASKO</a>
+            <a th:href="@{/login}" class="btn">Sign In</a>
+        </div>
+    </nav>
+
+    <main class="auth-container">
+        <div class="glass-card auth-card">
+            <h2 class="text-center">Create Account</h2>
+            <p class="text-center text-muted mb-4">Join TASKO to manage tasks and attendance</p>
+
+            <div th:if="${param.error}" class="alert alert-error" th:text="${param.error}">
+            </div>
+            
+            <form th:action="@{/register}" method="post" class="auth-form">
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" name="fullName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="tel" id="phone" name="phone" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="enterprise">Enterprise</label>
+                    <select id="enterprise" name="enterpriseId" class="form-control" required>
+                        <option value="">Select Enterprise</option>
+                        <option th:each="enterprise : ${enterprises}"
+                                th:value="${enterprise.id}"
+                                th:text="${enterprise.name}">
+                        </option>
+                    </select>
+                    <p class="text-muted">
+                        <small>Don't see your enterprise? <a th:href="@{/enterprises/register}">Register a new one</a></small>
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <select id="role" name="role" class="form-control" required>
+                        <option value="ROLE_USER">User</option>
+                        <option value="ROLE_ADMIN">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-block mb-3">
+                    <i class="fas fa-user-plus"></i>
+                    Create Account
+                </button>
+            </form>
+            
+            <p class="text-center text-muted">
+                Already have an account? 
+                <a th:href="@{/login}" class="text-accent">Sign in here</a>
+            </p>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User Dashboard - TASKO</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Epilogue:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="dashboard-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar glass-card">
+        <div class="sidebar-header">
+            <img th:src="${user.profileImage != null ? user.profileImage : '/images/default-avatar.png'}" 
+                 alt="Profile" class="profile-img">
+            <h3 th:text="${user.fullName}">User Name</h3>
+            <p th:text="${user.email}" class="text-muted"></p>
+        </div>
+        
+        <nav class="sidebar-menu">
+            <a href="#overview" class="active">
+                <i class="fas fa-home"></i>
+                <span>Overview</span>
+            </a>
+            <a href="#tasks">
+                <i class="fas fa-tasks"></i>
+                <span>Tasks</span>
+            </a>
+            <a href="#attendance">
+                <i class="fas fa-clock"></i>
+                <span>Attendance</span>
+            </a>
+            <a href="#profile">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-block">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Sign Out</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Overview Section -->
+        <section id="overview" class="dashboard-section">
+            <div class="section-header glass-card">
+                <h1>Welcome, <span th:text="${user.fullName}">User</span></h1>
+                <p class="date" th:text="${#temporals.format(#temporals.createNow(), 'EEEE, MMMM d, yyyy')}"></p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="glass-card">
+                    <i class="fas fa-tasks"></i>
+                    <h3>Active Tasks</h3>
+                    <p th:text="${#lists.size(pendingTasks)}">0</p>
+                </div>
+                <div class="glass-card">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <h3>Overdue Tasks</h3>
+                    <p th:text="${#lists.size(overdueTasks)}">0</p>
+                </div>
+                <div class="glass-card">
+                    <i class="fas fa-clock"></i>
+                    <h3>Attendance Status</h3>
+                    <p th:text="${todayAttendance != null ? 'Present' : 'Not Checked In'}"
+                       th:class="${todayAttendance != null ? 'status-badge present' : 'status-badge absent'}">
+                        Status
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tasks Section -->
+        <section id="tasks" class="dashboard-section">
+            <div class="section-header glass-card">
+                <h2>My Tasks</h2>
+                <div class="actions">
+                    <button onclick="showCreateTaskModal()" class="btn">
+                        <i class="fas fa-plus"></i> New Task
+                    </button>
+                    <select id="taskFilter" class="form-control" onchange="filterTasks()">
+                        <option value="all">All Tasks</option>
+                        <option value="pending">Pending</option>
+                        <option value="completed">Completed</option>
+                        <option value="overdue">Overdue</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="task-grid">
+                <div th:each="task : ${tasks}" class="glass-card task-card">
+                    <div class="task-header">
+                        <h3 th:text="${task.title}">Task Title</h3>
+                        <span th:text="${task.status}" 
+                              th:class="'status-badge ' + ${task.status.toLowerCase()}">
+                            Status
+                        </span>
+                    </div>
+                    <p th:text="${task.description}" class="task-description">Task description</p>
+                    <div class="task-meta">
+                        <span>
+                            <i class="far fa-calendar"></i>
+                            Due: <span th:text="${#temporals.format(task.dueDate, 'MMM d, yyyy')}">
+                                Due Date
+                            </span>
+                        </span>
+                        <div class="task-actions">
+                            <button th:if="${task.status != 'COMPLETED'}"
+                                    th:onclick="'completeTask(' + ${task.id} + ')'"
+                                    class="btn btn-success">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button th:onclick="'editTask(' + ${task.id} + ')'"
+                                    class="btn">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Attendance Section -->
+        <section id="attendance" class="dashboard-section">
+            <div class="section-header glass-card">
+                <h2>Attendance</h2>
+                <div class="attendance-actions">
+                    <form th:if="${todayAttendance == null}" 
+                          th:action="@{/attendance/log}" 
+                          method="post">
+                        <button type="submit" class="btn">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Check In
+                        </button>
+                    </form>
+                    <form th:if="${todayAttendance != null && todayAttendance.checkOut == null}" 
+                          th:action="@{/attendance/checkout}" 
+                          method="post">
+                        <button type="submit" class="btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Check Out
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="glass-card">
+                    <h3>Monthly Overview</h3>
+                    <div class="stat-item">
+                        <p class="stat-label">Present Days</p>
+                        <p class="stat-value" th:text="${attendanceStats.presentDays + '/' + attendanceStats.workingDays}">
+                            0/0
+                        </p>
+                    </div>
+                    <div class="stat-item">
+                        <p class="stat-label">Overtime Hours</p>
+                        <p class="stat-value" th:text="${attendanceStats.overtimeHours}">
+                            0
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="profile" class="dashboard-section">
+            <div class="glass-card">
+                <div class="profile-header">
+                    <img th:src="${user.profileImage != null ? user.profileImage : '/images/default-avatar.png'}" 
+                         alt="Profile" class="profile-img">
+                    <div class="profile-info">
+                        <h2 th:text="${user.fullName}">Full Name</h2>
+                        <p th:text="${user.email}" class="text-muted">Email</p>
+                        <p th:text="${user.phone}" class="text-muted">Phone</p>
+                    </div>
+                    <button onclick="editProfile()" class="btn">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Task Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content glass-card">
+            <h2>Create Task</h2>
+            <form id="taskForm">
+                <div class="form-group">
+                    <label for="taskTitle">Title</label>
+                    <input type="text" id="taskTitle" name="title" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskDescription">Description</label>
+                    <textarea id="taskDescription" name="description" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="taskDueDate">Due Date</label>
+                    <input type="datetime-local" id="taskDueDate" name="dueDate" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskPriority">Priority</label>
+                    <select id="taskPriority" name="priority" class="form-control">
+                        <option value="LOW">Low</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="HIGH">High</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" onclick="closeTaskModal()" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content glass-card">
+            <h2>Edit Profile</h2>
+            <form id="profileForm">
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" name="fullName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="tel" id="phone" name="phone" class="form-control">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" onclick="closeProfileModal()" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        // Task Management
+        function showCreateTaskModal() {
+            document.getElementById('taskModal').classList.add('active');
+        }
+
+        function closeTaskModal() {
+            document.getElementById('taskModal').classList.remove('active');
+        }
+
+        function editTask(taskId) {
+            // Implementation
+        }
+
+        function completeTask(taskId) {
+            // Implementation
+        }
+
+        function filterTasks() {
+            // Implementation
+        }
+
+        // Profile Management
+        function editProfile() {
+            document.getElementById('profileModal').classList.add('active');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.remove('active');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Implementation
+        });
+    </script>
+</body>
+</html>

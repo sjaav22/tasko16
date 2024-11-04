@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Error - Tasko</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+    <nav class="nav">
+        <div class="container nav-content">
+            <div class="logo">
+                <a th:href="@{/}" class="logo-link">Tasko</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="auth-container">
+        <div class="auth-card">
+            <h2>Oops! Something went wrong</h2>
+            <p class="auth-subtitle">We're sorry, but there was an error processing your request.</p>
+            <div class="auth-footer">
+                <a th:href="@{/}" class="btn btn-primary btn-block">Return Home</a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

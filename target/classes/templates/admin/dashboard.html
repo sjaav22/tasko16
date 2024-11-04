@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Dashboard - TASKO</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Epilogue:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="dashboard-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar glass-card">
+        <div class="sidebar-header">
+            <img th:src="${user.profileImage != null ? user.profileImage : '/images/admin-avatar.png'}" 
+                 alt="Admin" class="profile-img">
+            <h3>Admin Dashboard</h3>
+        </div>
+        
+        <nav class="sidebar-menu">
+            <a href="#overview" class="active">
+                <i class="fas fa-chart-line"></i>
+                <span>Overview</span>
+            </a>
+            <a href="#users">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </a>
+            <a href="#tasks">
+                <i class="fas fa-tasks"></i>
+                <span>Tasks</span>
+            </a>
+            <a href="#attendance">
+                <i class="fas fa-clock"></i>
+                <span>Attendance</span>
+            </a>
+            <a href="#reports">
+                <i class="fas fa-chart-bar"></i>
+                <span>Reports</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-block">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Sign Out</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Overview Section -->
+        <section id="overview" class="dashboard-section">
+            <div class="section-header glass-card">
+                <h1>System Overview</h1>
+                <p class="date" th:text="${#temporals.format(#temporals.createNow(), 'EEEE, MMMM d, yyyy')}"></p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="glass-card">
+                    <i class="fas fa-users"></i>
+                    <h3>Total Users</h3>
+                    <p th:text="${stats.totalUsers}">0</p>
+                    <span class="text-muted" th:text="${stats.activeUsers + ' Active'}"></span>
+                </div>
+                <div class="glass-card">
+                    <i class="fas fa-tasks"></i>
+                    <h3>Tasks</h3>
+                    <p th:text="${stats.totalTasks}">0</p>
+                    <span class="text-muted" th:text="${stats.pendingTasks + ' Pending'}"></span>
+                </div>
+                <div class="glass-card">
+                    <i class="fas fa-clock"></i>
+                    <h3>Attendance Today</h3>
+                    <p th:text="${stats.presentToday}">0</p>
+                    <span class="text-muted">Present Today</span>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="glass-card">
+                    <h3>Task Trends</h3>
+                    <canvas id="taskTrendsChart"></canvas>
+                </div>
+                <div class="glass-card">
+                    <h3>Attendance Trends</h3>
+                    <canvas id="attendanceTrendsChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- User Management Section -->
+        <section id="users" class="dashboard-section">
+            <div class="section-header glass-card">
+                <h2>User Management</h2>
+                <button onclick="showAddUserModal()" class="btn">
+                    <i class="fas fa-plus"></i> Add User
+                </button>
+            </div>
+
+            <div class="filter-bar glass-card">
+                <input type="text" placeholder="Search users..." id="userSearch" class="form-control">
+                <select id="roleFilter" class="form-control">
+                    <option value="">All Roles</option>
+                    <option value="ROLE_ADMIN">Admin</option>
+                    <option value="ROLE_USER">User</option>
+                </select>
+            </div>
+
+            <div class="user-grid">
+                <div th:each="user : ${users}" class="glass-card">
+                    <div class="user-header">
+                        <img th:src="${user.profileImage != null ? user.profileImage : '/images/default-avatar.png'}" 
+                             alt="User Avatar" class="profile-img">
+                        <div class="user-info">
+                            <h3 th:text="${user.fullName}"></h3>
+                            <p class="text-muted" th:text="${user.email}"></p>
+                        </div>
+                    </div>
+                    <div class="user-body">
+                        <p><strong>Role:</strong> <span th:text="${user.role}"></span></p>
+                        <p><strong>Status:</strong> 
+                           <span th:text="${user.active ? 'Active' : 'Inactive'}"
+                                 th:class="${user.active ? 'status-badge active' : 'status-badge inactive'}">
+                           </span>
+                        </p>
+                    </div>
+                    <div class="user-actions">
+                        <button th:onclick="'editUser(' + ${user.id} + ')'" class="btn">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button th:if="${user.active}" 
+                                th:onclick="'deactivateUser(' + ${user.id} + ')'" 
+                                class="btn btn-danger">
+                            <i class="fas fa-user-slash"></i>
+                        </button>
+                        <button th:unless="${user.active}" 
+                                th:onclick="'activateUser(' + ${user.id} + ')'" 
+                                class="btn btn-success">
+                            <i class="fas fa-user-check"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Task Management Section -->
+        <section id="tasks" class="dashboard-section">
+            <div class="section-header glass-card">
+                <h2>Task Management</h2>
+                <div class="actions">
+                    <button onclick="showCreateTaskModal()" class="btn">
+                        <i class="fas fa-plus"></i> New Task
+                    </button>
+                    <select id="taskStatusFilter" class="form-control">
+                        <option value="all">All Tasks</option>
+                        <option value="pending">Pending</option>
+                        <option value="completed">Completed</option>
+                        <option value="overdue">Overdue</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="task-grid">
+                <div th:each="task : ${allTasks}" class="glass-card">
+                    <div class="task-header">
+                        <h3 th:text="${task.title}">Task Title</h3>
+                        <span th:text="${task.status}" 
+                              th:class="'status-badge ' + ${task.status.toLowerCase()}">
+                            Status
+                        </span>
+                    </div>
+                    <p th:text="${task.description}" class="task-description">Description</p>
+                    <div class="task-meta">
+                        <span>
+                            <i class="far fa-calendar"></i>
+                            Due: <span th:text="${#temporals.format(task.dueDate, 'MMM d, yyyy')}">
+                                Due Date
+                            </span>
+                        </span>
+                        <span>
+                            <i class="far fa-user"></i>
+                            Assigned to: <span th:text="${task.user.fullName}">User</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Attendance Management Section -->
+        <section id="attendance" class="dashboard-section">
+            <div class="section-header glass-card">
+                <h2>Attendance Overview</h2>
+                <div class="date-filter">
+                    <input type="date" id="attendanceDate" class="form-control">
+                </div>
+            </div>
+
+            <div class="attendance-grid">
+                <div class="glass-card">
+                    <h3>Today's Attendance</h3>
+                    <div class="attendance-list">
+                        <!-- Attendance list implementation -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reports Section -->
+        <section id="reports" class="dashboard-section">
+            <div class="section-header glass-card">
+                <h2>Reports</h2>
+                <div class="report-actions">
+                    <button onclick="generateReport('tasks')" class="btn">
+                        <i class="fas fa-file-alt"></i>
+                        Task Report
+                    </button>
+                    <button onclick="generateReport('attendance')" class="btn">
+                        <i class="fas fa-file-alt"></i>
+                        Attendance Report
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <div id="userModal" class="modal">
+        <div class="modal-content glass-card">
+            <h2>Add User</h2>
+            <form id="userForm">
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" name="fullName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="tel" id="phone" name="phone" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <select id="role" name="role" class="form-control" required>
+                        <option value="ROLE_USER">User</option>
+                        <option value="ROLE_ADMIN">Admin</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" onclick="closeUserModal()" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn">Save User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="taskModal" class="modal">
+        <div class="modal-content glass-card">
+            <h2>Create Task</h2>
+            <form id="taskForm">
+                <div class="form-group">
+                    <label for="taskTitle">Title</label>
+                    <input type="text" id="taskTitle" name="title" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskDescription">Description</label>
+                    <textarea id="taskDescription" name="description" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="assignedUser">Assign To</label>
+                    <select id="assignedUser" name="userId" class="form-control" required>
+                        <option value="">Select User</option>
+                        <option th:each="user : ${users}"
+                                th:value="${user.id}"
+                                th:text="${user.fullName}">
+                            User Name
+                        </option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="taskDueDate">Due Date</label>
+                    <input type="datetime-local" id="taskDueDate" name="dueDate" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskPriority">Priority</label>
+                    <select id="taskPriority" name="priority" class="form-control">
+                        <option value="LOW">Low</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="HIGH">High</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" onclick="closeTaskModal()" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:inline="javascript">
+        // Initialize Charts
+        function initializeCharts() {
+            const taskTrendsCtx = document.getElementById('taskTrendsChart').getContext('2d');
+            const attendanceTrendsCtx = document.getElementById('attendanceTrendsChart').getContext('2d');
+            
+            // Task Trends Chart
+            new Chart(taskTrendsCtx, {
+                type: 'line',
+                data: {
+                    labels: /*[[${taskTrends.labels}]]*/ [],
+                    datasets: [{
+                        label: 'Completed Tasks',
+                        data: /*[[${taskTrends.completed}]]*/ [],
+                        borderColor: '#75B6FF'
+                    }, {
+                        label: 'New Tasks',
+                        data: /*[[${taskTrends.new}]]*/ [],
+                        borderColor: '#5a9de6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#F8FAFC'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#F8FAFC' }
+                        },
+                        y: {
+                            ticks: { color: '#F8FAFC' }
+                        }
+                    }
+                }
+            });
+
+            // Attendance Trends Chart
+            new Chart(attendanceTrendsCtx, {
+                type: 'bar',
+                data: {
+                    labels: /*[[${attendanceTrends.labels}]]*/ [],
+                    datasets: [{
+                        label: 'Present',
+                        data: /*[[${attendanceTrends.present}]]*/ [],
+                        backgroundColor: '#75B6FF'
+                    }, {
+                        label: 'Absent',
+                        data: /*[[${attendanceTrends.absent}]]*/ [],
+                        backgroundColor: '#5a9de6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#F8FAFC'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#F8FAFC' }
+                        },
+                        y: {
+                            ticks: { color: '#F8FAFC' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // User Management
+        function showAddUserModal() {
+            document.getElementById('userModal').classList.add('active');
+        }
+
+        function closeUserModal() {
+            document.getElementById('userModal').classList.remove('active');
+        }
+
+        function editUser(userId) {
+            // Implementation
+        }
+
+        function deactivateUser(userId) {
+            // Implementation
+        }
+
+        function activateUser(userId) {
+            // Implementation
+        }
+
+        // Task Management
+        function showCreateTaskModal() {
+            document.getElementById('taskModal').classList.add('active');
+        }
+
+        function closeTaskModal() {
+            document.getElementById('taskModal').classList.remove('active');
+        }
+
+        // Reports
+        function generateReport(type) {
+            // Implementation
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+TASKO - Task and Attendance Management System
+=======================================
+
+Project Structure
+----------------
+src/
+├── main/
+│   ├── java/
+│   │   └── com/
+│   │       └── example/
+│   │           └── tasko/
+│   │               ├── config/
+│   │               │   ├── SecurityConfig.java        # Security configuration
+│   │               │   └── WebConfig.java            # Web MVC configuration
+│   │               ├── controller/
+│   │               │   ├── AdminController.java      # Admin dashboard controller
+│   │               │   ├── AttendanceController.java # Attendance management
+│   │               │   ├── AuthController.java       # Authentication handling
+│   │               │   ├── DashboardController.java  # Dashboard routing
+│   │               │   ├── HomeController.java       # Public pages
+│   │               │   └── TaskController.java       # Task management
+│   │               ├── model/
+│   │               │   ├── Attendance.java           # Attendance entity
+│   │               │   ├── Task.java                 # Task entity
+│   │               │   └── User.java                 # User entity
+│   │               ├── repository/
+│   │               │   ├── AttendanceRepository.java # Attendance data access
+│   │               │   ├── TaskRepository.java       # Task data access
+│   │               │   └── UserRepository.java       # User data access
+│   │               ├── service/
+│   │               │   ├── AttendanceService.java    # Attendance business logic
+│   │               │   ├── TaskService.java          # Task business logic
+│   │               │   └── UserService.java          # User business logic
+│   │               └── TaskoApplication.java         # Main application class
+│   └── resources/
+│       ├── static/
+│       │   ├── css/
+│       │   │   └── main.css                         # Global styles
+│       │   └── js/
+│       │       └── main.js                          # Global JavaScript
+│       └── templates/
+│           ├── admin/
+│           │   └── dashboard.html                   # Admin dashboard
+│           ├── user/
+│           │   └── dashboard.html                   # User dashboard
+│           ├── error/
+│           │   └── error.html                       # Error pages
+│           ├── home.html                            # Landing page
+│           ├── login.html                           # Login page
+│           └── register.html                        # Registration page
+
+Key Features
+-----------
+1. User Management
+   - Role-based access (Admin/User)
+   - Secure authentication
+   - Profile management
+
+2. Task Management
+   - Create, assign, and track tasks
+   - Task status monitoring
+   - Due date tracking
+   - Task completion workflow
+   - Task filtering and sorting
+
+3. Attendance System
+   - Daily attendance logging
+   - Attendance tracking
+   - Monthly attendance reports
+   - Attendance analytics
+
+4. Dashboard Features
+   ✓ User Dashboard
+   - Task viewing and management
+   - Attendance logging (once per day)
+   - Profile management
+   - Navigation sidebar
+   - Real-time updates
+
+   ✓ Admin Dashboard
+   - User management
+   - Task oversight
+   - Analytics and reporting
+   - System monitoring
+
+Technology Stack
+---------------
+- Backend: Spring Boot 2.7.11
+- Frontend: Thymeleaf, HTML5, CSS3, JavaScript
+- Database: H2 Database (embedded)
+- Security: Spring Security
+- Build Tool: Maven
+- UI Framework: Custom CSS with Flexbox/Grid
+- Icons: Font Awesome 6.0.0
+
+Security Features
+---------------
+- Role-based access control
+- Password encryption (BCrypt)
+- Session management
+- CSRF protection
+- Secure authentication flow
+
+Navigation Flow
+-------------
+1. Public Pages
+   - Home (/) → Landing page
+   - Login (/login) → Authentication
+   - Register (/register) → User registration
+
+2. User Flow
+   - Dashboard (/user/dashboard)
+   - Task Management (/tasks/*)
+   - Attendance (/attendance/*)
+   - Profile (/profile)
+
+3. Admin Flow
+   - Dashboard (/admin/dashboard)
+   - User Management (/admin/users)
+   - Task Management (/admin/tasks)
+   - System Analytics (/admin/analytics)

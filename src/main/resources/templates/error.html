@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Error - Tasko</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h2>Oops! Something went wrong</h2>
+            <p class="auth-subtitle" th:text="${error != null ? error : 'An unexpected error occurred.'}">
+                Error message
+            </p>
+            <div class="auth-footer">
+                <a th:href="@{/dashboard}" class="btn btn-primary btn-block">Return to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
